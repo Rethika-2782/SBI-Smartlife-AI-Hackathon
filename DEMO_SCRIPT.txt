@@ -1,0 +1,47 @@
+[0:00 — HOOK]
+Welcome everyone. Today, I am excited to show you the SmartLife AI Ambient Controller, a secure smart home assistant that solves a major problem: how do we give AI agents control over our physical homes without sacrificing security, privacy, or safety?
+
+[0:20 — WHAT IT IS]
+SmartLife AI is an intelligent smart home assistant built on Google's Agent Development Kit, or ADK. It belongs to the Concierge Agents track, acting as an ambient controller that bridges natural language requests with real smart devices like lights, thermostats, locks, and cameras.
+
+[0:40 — SHOW THE BANNER]
+(show assets/cover_page_banner.png)
+As you can see on the screen, this is our project banner. SmartLife AI is designed to be automated, secure, and intelligent, giving homeowners peace of mind while making home control completely hands-free.
+
+[1:00 — ARCHITECTURE]
+(show assets/architecture_diagram.png)
+Let's take a look at how this is structured under the hood. 
+Every user query starts at the top, passing first through our Security Checkpoint node. 
+If a security threat is detected, it is immediately blocked by the Violation Handler node.
+If it's clean, it goes to the Orchestrator Agent, the main coordinator of the system.
+The orchestrator decides whether to delegate the work to the Climate Agent for heating and cooling, or the Device Agent for lights, locks, and cameras.
+Both agents fetch status and perform actions by making tool calls to a local Model Context Protocol, or MCP server.
+Once the agents return their response, the Post-Orchestration Router checks if any critical actions, like unlocking a door, were requested.
+If so, it routes to a Human Approval Pause node, which leverages the ADK's RequestInput capability to pause and ask for confirmation.
+Once approved, it executes the action and formats the final output. If denied, the action is cancelled safely.
+
+[2:00 — LIVE DEMO]
+(switch to playground at localhost:18081)
+Now, let's see it in action. I will run three test cases in our interactive playground.
+(pause)
+First, I will ask: "What is the status of the living room light?"
+(pause)
+This is a standard query. The orchestrator delegates to the Device Agent, which queries the MCP server. As we see, it returns that the light is off at seventy percent brightness, and it is auto-approved without pausing.
+(pause)
+Second, let's test our privacy feature. I will type: "My email is test@example.com. Please set the thermostat temperature to 74F."
+(pause)
+Watch the terminal log here. The email address is instantly scrubbed at the Security Checkpoint and replaced with redacted text before reaching the Climate Agent. The thermostat is set to seventy-four degrees, but our sensitive data never left the local system.
+(pause)
+Third, let's test a critical physical action. I will input: "Please unlock the front door lock."
+(pause)
+Notice how the playground has paused and is now prompting us: "HUMAN APPROVAL REQUIRED: Do you approve executing: unlock the front door lock?". I will type "yes" to approve it.
+(pause)
+Now the workflow resumes, the MCP tool is called, and the UI displays: "Approved: The critical action 'unlock the front door lock' has been successfully executed."
+
+[3:00 — SECURITY & MCP]
+Our Security Checkpoint uses regex pattern matching for PII scrubbing and scans for prompt injection attempts, outputting structured JSON logs for audit.
+(pause)
+Meanwhile, the MCP server runs as a separate stdio subprocess, ensuring the LLM only interacts with the home database through strictly defined schemas.
+
+[3:30 — IMPACT / CLOSE]
+By combining specialized LLM agents, an event-driven workflow graph, and robust security policies, SmartLife AI shows how we can build smart assistants that are both incredibly capable and completely safe to trust with our homes. Thank you!
